@@ -21,6 +21,8 @@ const transporte = nodemailer.createTransport({
   
   });
 
+app.use(limiter);
+
 // Define a route for the home page
 app.post('/mail', (req, res) => {
   const to = req.body.to;
