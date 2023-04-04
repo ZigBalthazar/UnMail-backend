@@ -1,12 +1,18 @@
 const express = require('express');
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv").config();
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minutes
+  max: 4 // limit each IP to 4 requests per windowMs
+});
+
 const transporte = nodemailer.createTransport({
       host: process.env.HOST,
-      port: process.env.PORT,
+      port: process.env.MAIL_PORT,
       secure: false,
       auth: {
         user: process.env.USER,
@@ -17,9 +23,9 @@ const transporte = nodemailer.createTransport({
 
 // Define a route for the home page
 app.post('/mail', (req, res) => {
-  const to = req.query.to;
-  const subject = req.query.subject;
-  const text = req.query.text;
+  const to = req.body.to;
+  const subject = req.body.subject;
+  const text = req.body.text;
 
   const TEXT = `
   Anonymous Email via unmail.kehiy.ir
@@ -59,7 +65,7 @@ app.post('/mail', (req, res) => {
   }
 });
 
-// Start the server listening on port 3000
-app.listen(3000, () => {
-  console.log('Server started on port 3000');
+// Start the server listening
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server started on port ${process.env.PORT||3000}`);
 });
